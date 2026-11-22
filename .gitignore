@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Downloaded files & temporary torrents
+downloads/*
+!downloads/.gitkeep
+temp/*
+!temp/.gitkeep
+
+# Environment & local settings
+.env
+.env.local
+*.log
+npm-debug.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE & Editor files
+.vscode/
+.idea/

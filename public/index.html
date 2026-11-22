@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TorrentFlow — High-Speed Downloads</title>
+  <link rel="stylesheet" href="/css/style.css?v=2.5">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
+</head>
+
+<body>
+  <!-- Background glow particles -->
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12C2 12 5 4 12 4C19 4 22 12 22 12"></path>
+            <path d="M2 12C2 12 5 20 12 20C19 20 22 12 22 12"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
+        <div>
+          <h1>Torrent<span>Flow</span></h1>
+          <span class="logo-tag">High-Speed Engine</span>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat stat-download" title="Current Download Speed">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
+          <span id="globalDown">0 B/s</span>
+        </div>
+        <div class="stat stat-upload" title="Current Upload Speed">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+          <span id="globalUp">0 B/s</span>
+        </div>
+        <div class="stat" title="Active Torrents">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v8M8 12l4 4 4-4" />
+          </svg>
+          <span id="activeTorrents">0</span> active
+        </div>
+      </div>
+    </header>
+
+    <!-- Add Torrent Section -->
+    <section class="add-section">
+      <!-- Drag & Drop Zone -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-content">
+          <div class="drop-icon">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+          </div>
+          <p class="drop-text">Drag & drop <strong>.torrent</strong> files here</p>
+          <p class="drop-subtext">or click anywhere in this box to browse from your computer</p>
+        </div>
+        <input type="file" id="fileInput" accept=".torrent" multiple hidden>
+      </div>
+
+      <!-- Magnet URL Input -->
+      <div class="magnet-input-wrapper">
+        <div class="magnet-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 15a6 6 0 0 1 0-12h3v6a3 3 0 0 1-6 0" />
+            <path d="M18 15a6 6 0 0 0 0-12h-3v6a3 3 0 0 0 6 0" />
+            <line x1="6" y1="21" x2="6" y2="15" />
+            <line x1="18" y1="21" x2="18" y2="15" />
+          </svg>
+        </div>
+        <input type="text" id="magnetInput" class="magnet-input"
+          placeholder="Paste magnet link here (magnet:?xt=urn:btih:...)">
+        <button id="addMagnetBtn" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add
+        </button>
+      </div>
+    </section>
+
+    <!-- Torrents List -->
+    <section class="torrents-section">
+      <div class="section-header">
+        <div class="section-title">
+          <h2>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M19 12l-7 7-7-7" />
+            </svg>
+            Downloads
+          </h2>
+          <span class="badge" id="torrentCount">0</span>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <polyline points="13 2 13 9 20 9" />
+          </svg>
+        </div>
+        <h3>No active downloads</h3>
+        <p>Paste a magnet link or drop a .torrent file to begin downloading.</p>
+      </div>
+
+      <!-- Torrent Cards Container -->
+      <div class="torrent-list" id="torrentList"></div>
+    </section>
+  </div>
+
+  <!-- Interactive PC Folder Browser Modal -->
+  <div class="modal-backdrop" id="saveLocationModal">
+    <div class="modal-card modal-folder-picker">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
+          <div>
+            <h3>Choose Download Folder</h3>
+            <span class="modal-subtitle" id="modalTorrentName">Torrent Download</span>
+          </div>
+        </div>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+
+      <!-- Interactive In-App PC Directory Navigator -->
+      <div class="modal-browser-body">
+        <!-- Explorer Top Navigation -->
+        <div class="explorer-toolbar">
+          <button id="navUpBtn" class="btn-icon-sm" title="Go up one folder">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="18 15 12 9 6 15" />
+            </svg>
+          </button>
+
+          <!-- Interactive Breadcrumb Bar -->
+          <div class="explorer-breadcrumbs" id="explorerBreadcrumbs">
+            <!-- Dynamically generated breadcrumb segments -->
+          </div>
+
+          <button id="navNewFolderBtn" class="btn-icon-sm" title="Create new folder">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              <line x1="12" y1="11" x2="12" y2="17" />
+              <line x1="9" y1="14" x2="15" y2="14" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Explorer Split Pane -->
+        <div class="explorer-split">
+          <!-- Sidebar: Places & Drives -->
+          <div class="explorer-sidebar">
+            <div class="sidebar-section-title">PLACES</div>
+            <div class="sidebar-list" id="sidebarPlaces">
+              <!-- Dynamically populated places -->
+            </div>
+
+            <div class="sidebar-section-title">DRIVES</div>
+            <div class="sidebar-list" id="sidebarDrives">
+              <!-- Dynamically populated drives -->
+            </div>
+          </div>
+
+          <!-- Main Folder Grid/List -->
+          <div class="explorer-content">
+            <!-- In-App New Folder Creation Bar -->
+            <div class="new-folder-bar" id="newFolderBar" style="display:none;">
+              <div class="new-folder-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <input type="text" id="newFolderNameInput" class="new-folder-input" placeholder="Enter folder name..."
+                maxlength="60">
+              <button id="newFolderCreateBtn" class="btn-create-folder" title="Create Folder">Create</button>
+              <button id="newFolderCancelBtn" class="btn-cancel-folder" title="Cancel">&times;</button>
+            </div>
+
+            <div class="folder-items-grid" id="folderItemsGrid">
+              <!-- Dynamically rendered folders -->
+            </div>
+            <div class="explorer-empty" id="explorerEmpty" style="display:none;">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>This folder has no subfolders</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected Path Display -->
+        <div class="explorer-footer-selection">
+          <span class="selection-label">Save To:</span>
+          <span class="selection-path" id="activeSelectedPathDisplay">...</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
+        <button class="btn btn-primary" id="modalConfirmBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          Select & Start Download
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-backdrop" id="deleteModal">
+    <div class="modal-card modal-delete-confirm">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-icon modal-icon-danger">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+              <line x1="10" y1="11" x2="10" y2="17"></line>
+              <line x1="14" y1="11" x2="14" y2="17"></line>
+            </svg>
+          </div>
+          <div>
+            <h3>Delete Torrent</h3>
+            <span class="modal-subtitle">Confirm Removal</span>
+          </div>
+        </div>
+        <button class="modal-close" id="deleteModalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-delete-body">
+        <p class="delete-prompt-text">Are you sure you want to remove this torrent from your download list?</p>
+        <div class="delete-torrent-box">
+          <div class="delete-torrent-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </div>
+          <div class="delete-torrent-info">
+            <div class="delete-torrent-name" id="deleteTorrentName">Torrent Name</div>
+            <div class="delete-torrent-meta" id="deleteTorrentMeta">Size: -- • Completed: --</div>
+          </div>
+        </div>
+
+        <label class="delete-files-checkbox-row">
+          <input type="checkbox" id="deleteFilesCheckbox">
+          <span class="checkbox-custom"></span>
+          <span class="checkbox-label">Also permanently delete downloaded files from disk</span>
+        </label>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="deleteModalCancelBtn">Cancel</button>
+        <button class="btn btn-danger" id="deleteModalConfirmBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+          </svg>
+          <span>Delete Torrent</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Explorer & Storage Modal -->
+  <div class="modal-backdrop" id="filesModal">
+    <div class="modal-card modal-files-view">
+      <div class="modal-header">
+        <div class="modal-title-row">
+          <div class="modal-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 id="filesModalTitle">Torrent Files & Storage</h3>
+            <span class="modal-subtitle" id="filesModalSubtitle">Local Storage & Contents</span>
+          </div>
+        </div>
+        <button class="modal-close" id="filesModalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-files-body">
+        <!-- Local Path Banner -->
+        <div class="storage-path-box">
+          <div class="storage-path-header">
+            <span>SAVED ON YOUR PC AT:</span>
+            <button class="btn-copy-path" id="btnCopyPCPath" title="Copy exact path to clipboard">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy Path</span>
+            </button>
+          </div>
+          <div class="storage-path-value" id="storagePathDisplay">C:\Downloads</div>
+        </div>
+
+        <!-- Files List -->
+        <div class="files-modal-list-container">
+          <div class="files-modal-header-row">
+            <span>FILES (<span id="filesModalCount">0</span>)</span>
+            <span id="filesModalTotalSize">0 B</span>
+          </div>
+          <ul class="files-modal-list" id="filesModalList"></ul>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="filesModalDoneBtn">Close</button>
+        <button class="btn btn-primary" id="btnOpenInExplorerDirect">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>Open in File Explorer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Torrent Card Template -->
+  <template id="torrentCardTemplate">
+    <div class="torrent-card" data-infohash="">
+      <div class="torrent-header">
+        <div class="torrent-info">
+          <div class="torrent-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+              <polyline points="13 2 13 9 20 9" />
+            </svg>
+          </div>
+          <div class="torrent-meta">
+            <div class="torrent-title-row">
+              <h3 class="torrent-name">Fetching metadata...</h3>
+              <span class="status-pill status-loading">Searching Peers</span>
+            </div>
+            <div class="torrent-submeta">
+              <span class="torrent-size">Resolving info...</span>
+              <span class="meta-dot">•</span>
+              <span class="torrent-path-preview" title="Saved to this directory">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+                <span class="card-save-path">...</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="torrent-actions">
+          <button class="btn-icon btn-open-card-folder" title="Open this folder on PC">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+            </svg>
+          </button>
+          <button class="btn-icon btn-copy-magnet" title="Copy Magnet Link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button class="btn-icon btn-pause" title="Pause / Resume">
+            <svg class="icon-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="6" y="4" width="4" height="16" />
+              <rect x="14" y="4" width="4" height="16" />
+            </svg>
+          </button>
+          <button class="btn-icon btn-remove" title="Remove">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <span class="progress-text">0%</span>
+      </div>
+
+      <div class="torrent-stats">
+        <div class="stat-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
+          <span class="stat-down">0 B/s</span>
+        </div>
+        <div class="stat-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+          <span class="stat-up">0 B/s</span>
+        </div>
+        <div class="stat-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+          <span class="stat-eta">—</span>
+        </div>
+        <div class="stat-item">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg>
+          <span class="stat-peers">0 peers</span>
+        </div>
+      </div>
+
+      <!-- File list toggle -->
+      <div class="torrent-files-toggle">
+        <button class="btn-toggle-files">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+          <span>Files (<span class="files-count">0</span>)</span>
+        </button>
+      </div>
+      <div class="torrent-files" style="display:none;">
+        <ul class="file-list"></ul>
+      </div>
+    </div>
+  </template>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/app.js?v=3.1"></script>
+</body>
+
+</html>
