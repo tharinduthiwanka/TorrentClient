@@ -32,25 +32,6 @@
 - **⚡ Live Bidirectional Telemetry (Socket.IO)**:
   - Real-time download/upload rates, progress percentage, ETA, peer count, and swarm stats pushed every second without polling.
 
-- **⏸️ True Wire-Level Pause / Resume Engine**:
-  - Custom socket-freeze implementation: pauses raw TCP peer wire streams and cancels pending block requests, ensuring true 0 B/s bandwidth consumption when paused.
-
-- **📁 In-App PC File System Explorer**:
-  - Dark-glassmorphic drive & directory navigator.
-  - Browse system drives (`C:\`, `D:\`), standard locations (Downloads, Desktop, Documents), and create custom download folders directly in the UI before downloading.
-
-- **🖥️ 1-Click Native Desktop Explorer Integration**:
-  - Directly opens downloaded files and folders inside **Windows File Explorer** using native desktop shell execution.
-
-- **🗑️ Safe Torrent & File Deletion**:
-  - Interactive deletion confirmation modal matching UI theme.
-  - Choice to remove the torrent from client or permanently wipe physical files from disk.
-
-- **🎨 Modern Dark Glassmorphic UI**:
-  - Dynamic particle background canvas.
-  - Drag-and-drop `.torrent` file uploader with live metadata pre-inspection.
-  - Auto-detection for clipboard magnet links (`Ctrl + V`).
-
 ---
 
 ## 🏗️ Architecture & System Design
